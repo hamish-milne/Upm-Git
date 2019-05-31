@@ -27,7 +27,19 @@ Got some [custom packages](https://docs.unity3d.com/Manual/CustomPackages.html) 
 
 ## Why Upm-Git?
 
+Unity provides a few ways to import custom packages already:
 
+* Using an NPM registry like Verdaccio. This gives you 'full' package management (dependencies, versioning, UI), but requires CI to publish packages to it, and for practical use requires running it as a globally available web service. Furthermore since Unity doesn't support authentication for scoped registries, you'll need to restrict access to a LAN/VLAN if you want to keep it private.
+* Directly referencing the repository in the manifest. This is definitely the simplest solution, however it doesn't give you 'full' support, and requires that each package have its own repository.
+* Using a git submodule and adding the packages as local files. This works, and is the way to go while you're developing the packages as you can easily push your changes upstream, but doesn't give you 'full' support and requires manually managing the submodule's status.
+
+Upm-Git has some advantages:
+
+* You get 'full' package management support: dependencies, versioning, and the use of the built-in package manager UI
+* No extra publishing or copying is required; the service reads directly from git
+* The app can be run locally, avoiding the need for a separate web service in private use scenarios
+* Since it is just a web app, you can publish your packages by simply running it on an accessible server
+* By default the service is configuration-less, and can operate on any repository specified through the URL. There's no setup required for the repository; as long as it has `package.json` files, it can be scanned.
 
 ## How it works
 
