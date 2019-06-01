@@ -1,8 +1,0 @@
-<Directives>
-    <Application>
-        <Assembly Name="PackageSrv">
-            <Type Name="PackageSrv.PackageSrv" Dynamic="Required All" />
-        </Assembly>
-		<Assembly Name="Nancy" Dynamic="Required All" />
-    </Application>
-</Directives>

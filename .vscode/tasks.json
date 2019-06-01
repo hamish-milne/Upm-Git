@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/PackageSrv.csproj"
+                "${workspaceFolder}/Upm-Git/UpmGit.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -17,7 +17,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/PackageSrv.csproj"
+                "${workspaceFolder}/Upm-Git/UpmGit.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -28,7 +28,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/PackageSrv.csproj"
+                "${workspaceFolder}/Upm-Git/UpmGit.csproj"
             ],
             "problemMatcher": "$tsc"
         }

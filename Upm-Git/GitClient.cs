@@ -5,8 +5,9 @@ using ICSharpCode.SharpZipLib.Tar;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace PackageSrv
+namespace UpmGit
 {
 	public class GitClient
 	{
@@ -67,7 +68,7 @@ namespace PackageSrv
 			}
 		}
 
-		public static void GetArchive(Action<Stream> streamDelegate,
+		public static async Task GetArchive(Func<Stream, Task> streamDelegate,
 			string remote, string gitRef, string directory, string format)
 		{
 			using (var process = Process.Start(new ProcessStartInfo
@@ -78,7 +79,7 @@ namespace PackageSrv
 				UseShellExecute = false
 			}))
 			{
-				streamDelegate(process.StandardOutput.BaseStream);
+				await streamDelegate(process.StandardOutput.BaseStream);
 			}
 		}
 	}
