@@ -17,7 +17,7 @@ for:
 
       sudo apt-get -y install clang-3.9 libcurl4-openssl-dev zlib1g-dev libkrb5-dev
   after_build:
-    pwsh: Push-AppveyorArtifact Upm-Git\bin\release\netcoreapp2.2\linux-x64\native\UpmGit
+    pwsh: Push-AppveyorArtifact Upm-Git/bin/release/netcoreapp2.2/linux-x64/native/UpmGit
 -
   matrix:
     only:
