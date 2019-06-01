@@ -1,13 +1,31 @@
 version: 1.0.{build}
-image: Visual Studio 2019
+
+image:
+- Visual Studio 2019
+- Ubuntu
+
+for:
+-
+  matrix:
+    only:
+      - image: Ubuntu
+  environment:
+    - rid: linux-x64
+
+for:
+-
+  matrix:
+    only:
+      - image: Visual Studio 2019
+  environment:
+    - rid: win-x64
+
 build_script:
-- ps: >-
+- pwsh: >-
     $env:GIT_REDIRECT_STDERR = '2>&1'
 
     git submodule update --init --recursive
 
     cd Upm-Git
 
-    dotnet publish -c release -r win-x64
-
-    # dotnet publish -c release -r linux-x64
+    dotnet publish -c release -r $env:rid
