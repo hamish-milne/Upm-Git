@@ -10,13 +10,13 @@ for:
     only:
       - image: Ubuntu
   environment:
-    - rid: linux-x64
+    rid: linux-x64
 -
   matrix:
     only:
       - image: Visual Studio 2019
   environment:
-    - rid: win-x64
+    rid: win-x64
 
 build_script:
 - pwsh: >-
