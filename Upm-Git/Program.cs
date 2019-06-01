@@ -1,25 +1,23 @@
-﻿using System.Reflection;
-using System.Dynamic;
-using System.Diagnostics;
-using System.Net;
+﻿using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using System;
+using System.Net;
+using System.Net.Sockets;
+
+using uhttpsharp;
+using uhttpsharp.Headers;
+using uhttpsharp.Logging;
+using uhttpsharp.Listeners;
+using uhttpsharp.RequestProviders;
 using Nancy;
 using Nancy.Extensions;
-using uhttpsharp;
-using uhttpsharp.RequestProviders;
-using uhttpsharp.Listeners;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-using System.Globalization;
-using uhttpsharp.Headers;
-//using uhttpsharp.Logging;
-using System.Collections;
 
-// Temp
-using Microsoft.Extensions.DependencyModel;
+using Serilog;
+using Serilog.Events;
 
 namespace PackageSrv
 {
@@ -42,15 +40,25 @@ namespace PackageSrv
     {
         static Program()
         {
-            // LogProvider.LogProviderResolvers.Clear();
-            // LogProvider.LogProviderResolvers.Add(
-            //     new Tuple<LogProvider.IsLoggerAvailable, LogProvider.CreateLogProvider>(() => true,
-            //         () => NullLoggerProvider.Instance));
+            Serilog.Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.Console()
+                .CreateLogger();
+            LogProvider.SetCurrentLogProvider(new SerilogProvider());
+        }
+
+        static void WaitForExit()
+        {
+            var waitEvent = new ManualResetEvent(false);
+            ConsoleCancelEventHandler handler = (sender, e) => waitEvent.Set();
+            Console.CancelKeyPress += handler;
+            waitEvent.WaitOne();
+            Console.CancelKeyPress -= handler;
         }
 
         static void Main(string[] args)
         {
-            Nancy.Bootstrapper.NancyBootstrapperLocator.Bootstrapper = new MyBootstrapper();  
+            Nancy.Bootstrapper.NancyBootstrapperLocator.Bootstrapper = new MyBootstrapper();
 
             using (var httpServer = new HttpServer(new HttpRequestProvider()))
             {
@@ -60,37 +68,30 @@ namespace PackageSrv
 
                 httpServer.Use(new NancyRequestHandler());
                 httpServer.Start();
-                Console.ReadLine();
+                WaitForExit();
             }
         }
     }
 
-    // public class NullLoggerProvider : ILogProvider
-    // {
-    //     public static readonly NullLoggerProvider Instance = new NullLoggerProvider();
-        
-    //     private static readonly ILog NullLogInstance = new NullLog();
+    public class SerilogProvider : ILogProvider
+    {
+		public ILog GetLogger(string name) => new SerilogLogger();
 
-	// 	public ILog GetLogger(string name) => NullLogInstance;
-
-	// 	public IDisposable OpenNestedContext(string message) => null;
-
-	// 	public IDisposable OpenMappedContext(string key, string value) => null;
-
-	// 	public class NullLog : ILog
-    //     {
-    //         public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters)
-    //         {
-    //             if (messageFunc != null) {
-    //                 Console.WriteLine(string.Format(messageFunc(), formatParameters));
-    //             }
-    //             if (exception != null) {
-    //                 Console.WriteLine(exception);
-    //             }
-    //             return true;
-    //         }
-    //     }
-    // }
+		class SerilogLogger : ILog
+		{
+			public bool Log(LogLevel logLevel, Func<string> messageFunc,
+                Exception exception = null, params object[] formatParameters)
+			{
+                if (!Serilog.Log.IsEnabled((LogEventLevel)logLevel)) {
+                    return false;
+                }
+                if (messageFunc != null || exception != null)
+                    Serilog.Log.Write((LogEventLevel)logLevel, exception,
+                        messageFunc?.Invoke() ?? "", formatParameters);
+                return true;
+			}
+		}
+	}
 
 	class NancyRequestHandler : IHttpRequestHandler
 	{
@@ -114,7 +115,7 @@ namespace PackageSrv
             }
             catch (Exception e)
             {
-                Debug.Write($"---\n{e}\n---\n");
+                Log.Error(e, "Error processing request");
             }
             await Task.Factory.GetCompleted();
 		}

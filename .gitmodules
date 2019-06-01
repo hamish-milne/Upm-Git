@@ -1,0 +1,3 @@
+[submodule "uhttpsharp"]
+	path = uhttpsharp
+	url = ../uhttpsharp

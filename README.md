@@ -1,4 +1,5 @@
 # Upm-Git
+
 A Unity Package Manager bridge for Git repositories
 
 Got some [custom packages](https://docs.unity3d.com/Manual/CustomPackages.html) on a Git repository somewhere that you want to use in your projects? Upm-Git is a straightforward way to have them show up in the Unity Package Manager window, with full support for versioning and dependencies.
@@ -11,8 +12,11 @@ Got some [custom packages](https://docs.unity3d.com/Manual/CustomPackages.html) 
 
 ## Quick start - Manual
 
-* Download the latest release of `Upm-Git` from the Releases page and save it to the special folder `shell:startup` (run it immediately to get started)
-* [URL-encode](https://meyerweb.com/eric/tools/dencoder/) your Git remote, e.g. `git@github.com/hamish-milne/Upm-Git` becomes `git%40github.com%2Fhamish-milne%2FUpm-Git`
+* Download the latest release of `Upm-Git` from the Releases page and run it. To skip this step in future:
+  * **Windows**: Copy it to the special folder `shell:startup`
+  * **Linux**: Copy it to `/etc/init.d` and make it executable
+  * **MacOS**: Follow the steps [here](https://support.apple.com/kb/ph25590?locale=en_GB)
+* [URL-encode](https://meyerweb.com/eric/tools/dencoder/) your Git remote, e.g. `git@github.com:hamish-milne/Upm-Git` becomes `git%40github.com%3Ahamish-milne%2Fupm-git`
 * Add a [scoped registry](https://docs.unity3d.com/Manual/upm-scoped.html) to your `Packages/manifest.json` file, with the URL `http://localhost:8760/<your encoded URL>`. The Name and Scopes can be set as desired.
 * Reload the Package list
 
@@ -23,7 +27,38 @@ Got some [custom packages](https://docs.unity3d.com/Manual/CustomPackages.html) 
 
 ## Configuration
 
+### Repository
 
+Create a file `.upm-git.json` in the root directory, and ensure it's merged into the HEAD (tip of the default branch).
+Use the following structure (omit keys to keep their default value):
+
+```json
+{
+	"refRegex": "^refs/(heads|tags)/.+$"
+}
+```
+
+### Server
+
+Create a file `appsettings.json` next to the executable, with the following structure (omit keys to keep their default values):
+
+```json
+{
+	"listenAddress": "0.0.0.0",
+	"port": "8760",
+	"sslCertificate": null, // Path to the certificate file, to enable TLS
+	"singleRepository": null, // If specified, all requests will use this git remote; otherwise the URL encoding scheme is used
+	"urlPrefix": "/",
+	"refRegex": "^refs/(heads|tags)/.+$", // Only refs matching this expression will be scanned for packages
+	"cacheSizeMB": "100",
+	"useRepositoryConfiguration": true,
+	"authentication": null // See the Authentication section below
+}
+```
+
+#### Authentication
+
+Upm-Git supports limited server-side authentication and access restriction...
 
 ## Why Upm-Git?
 
@@ -41,6 +76,8 @@ Upm-Git has some advantages:
 * Since it is just a web app, you can publish your packages by simply running it on an accessible server
 * By default the service is configuration-less, and can operate on any repository specified through the URL. There's no setup required for the repository; as long as it has `package.json` files, it can be scanned.
 
-## How it works
+## Future work
 
+See the [TODO](/TODO) for the full roadmap.
 
+Should Unity decide to open-source UnityPackageManager.exe, we can make a PR and have this functionality built-in!

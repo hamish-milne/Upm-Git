@@ -1,0 +1,32 @@
+# Plumbing
+☐ CI
+	☐ Windows
+	☐ Linux
+	☐ MacOS
+	☐ Unitypackage
+✔ Use uhttpsharp fork @done(19-06-01 13:04)
+✔ Serilog @done(19-06-01 13:04)
+
+# Configuration
+☐ Server side
+☐ Repository side
+☐ Serilog
+☐ Listen address
+☐ Port
+☐ SSL Certificate
+☐ Single repository
+☐ Ref regex
+
+# Features
+☐ Repository in URL
+☐ Filter refs
+☐ Package cache
+☐ Authentication
+
+# UPM Settings Window
+☐ Upm-Git installer
+☐ Add scoped registries (normal and Upm-Git)
+☐ Package manifest control
+
+# External
+☐ Convince Unity to open-source UnityPackageManager.exe so we can have this functionality built-in!

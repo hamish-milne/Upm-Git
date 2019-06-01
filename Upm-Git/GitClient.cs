@@ -1,7 +1,5 @@
-using System.Text;
 using System;
 using System.IO;
-using System.Runtime.Serialization.Json;
 using System.Diagnostics;
 using ICSharpCode.SharpZipLib.Tar;
 using Newtonsoft.Json;
@@ -13,7 +11,8 @@ namespace PackageSrv
 	public class GitClient
 	{
 		// We keep the manifest as a JObject to preseve the contents without having to deserialize all the keys
-		public static IEnumerable<(string Path, JObject Manifest)> ListPackages(string remote, string searchPath, string gitRef)
+		public static IEnumerable<(string Path, JObject Manifest)> ListPackages(
+			string remote, string searchPath, string gitRef)
 		{
 			using (var process = Process.Start(new ProcessStartInfo
 			{
@@ -23,7 +22,7 @@ namespace PackageSrv
 				UseShellExecute = false
 			}))
 			{
-				Console.WriteLine(gitRef);
+				Serilog.Log.Verbose("Loading git ref {0}", gitRef);
 				var archive = new TarInputStream(process.StandardOutput.BaseStream)
 				{
 					IsStreamOwner = false
@@ -33,13 +32,14 @@ namespace PackageSrv
 				{
 					if (entry.IsDirectory) { continue; }
 					var manifest = (JObject)JObject.ReadFrom(new JsonTextReader(new StreamReader(archive)));
-					Console.WriteLine(entry.Name);
+					Serilog.Log.Verbose("Found package {0}", entry.Name);
 					yield return (Path.GetDirectoryName(entry.Name).Replace('\\', '/'), manifest);
 				}
 			}
 		}
 
-		public static IEnumerable<(string GitRef, string Path, JObject Manifest)> ListPackages(string remote, string searchPath, Predicate<string> refFilter)
+		public static IEnumerable<(string GitRef, string Path, JObject Manifest)> ListPackages(
+			string remote, string searchPath, Predicate<string> refFilter)
 		{
 			using (var process = Process.Start(new ProcessStartInfo
 			{
@@ -67,7 +67,8 @@ namespace PackageSrv
 			}
 		}
 
-		public static void GetArchive(Action<Stream> streamDelegate, string remote, string gitRef, string directory, string format)
+		public static void GetArchive(Action<Stream> streamDelegate,
+			string remote, string gitRef, string directory, string format)
 		{
 			using (var process = Process.Start(new ProcessStartInfo
 			{
