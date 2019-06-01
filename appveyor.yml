@@ -11,8 +11,6 @@ for:
       - image: Ubuntu
   environment:
     - rid: linux-x64
-
-for:
 -
   matrix:
     only:
