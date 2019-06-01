@@ -11,8 +11,10 @@ for:
       - image: Ubuntu1804
   environment:
     rid: linux-x64
+  before_build:
+    pwsh: sudo apt-get install llvm-3.9-runtime
   after_build:
-    pwsh: Push-AppveyorArtifact bin\release\netcoreapp2.2\linux-x64\native\PackageSrv
+    pwsh: Push-AppveyorArtifact Upm-Git\bin\release\netcoreapp2.2\linux-x64\native\PackageSrv
 -
   matrix:
     only:
@@ -20,7 +22,7 @@ for:
   environment:
     rid: win-x64
   after_build:
-    pwsh: Push-AppveyorArtifact bin\release\netcoreapp2.2\win-x64\native\PackageSrv.exe
+    pwsh: Push-AppveyorArtifact Upm-Git\bin\release\netcoreapp2.2\win-x64\native\PackageSrv.exe
 
 build_script:
 - pwsh: >-
