@@ -11,12 +11,16 @@ for:
       - image: Ubuntu1804
   environment:
     rid: linux-x64
+  after_build:
+    pwsh: Push-AppveyorArtifact bin\release\netcoreapp2.2\linux-x64\native\PackageSrv
 -
   matrix:
     only:
       - image: Visual Studio 2017
   environment:
     rid: win-x64
+  after_build:
+    pwsh: Push-AppveyorArtifact bin\release\netcoreapp2.2\win-x64\native\PackageSrv.exe
 
 build_script:
 - pwsh: >-
@@ -27,6 +31,3 @@ build_script:
     cd Upm-Git
 
     dotnet publish -c release -r $env:rid
-
-    Push-AppveyorArtifact bin/release/netcoreapp2.2/$env:rid/native
-  
