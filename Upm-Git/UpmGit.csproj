@@ -19,10 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <RdXmlFile Include="rd.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\uhttpsharp\uhttpsharp\uhttpsharp.csproj" />
   </ItemGroup>
 
