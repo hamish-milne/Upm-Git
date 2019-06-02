@@ -75,7 +75,7 @@ namespace UpmGit
 					["name"] = version.Manifest["name"],
 					["description"] = version.Manifest["description"],
 					["version"] = version.Manifest["version"],
-					["dist"] = GetDist(version.GitRef, version.Path, version.Manifest),
+					["dist"] = await GetDist(version.GitRef, version.Path, version.Manifest),
 					["dependencies"] = version.Manifest["dependencies"] ?? new JObject(),
 					["_id"] = $"{version.Manifest["name"]}@{version.Manifest["version"]}",
 					["gitHead"] = version.GitRef,
@@ -123,7 +123,7 @@ namespace UpmGit
 					["type"] = "git",
 					["url"] = Remote
 				}
-				["dist"] = GetDist(GitRef, Path, Manifest),
+				["dist"] = await GetDist(GitRef, Path, Manifest),
 				["_id"] = $"{query["package"]}@{query["version"]}"
 			});
 		}
@@ -216,28 +216,31 @@ namespace UpmGit
 		private static readonly Dictionary<(string gitRef, string path), string> _hashes
 			= new Dictionary<(string gitRef, string path), string>();
 
-		private JObject GetDist(string gitRef, string directory, JObject manifest)
+		private async Task<JObject> GetDist(string gitRef, string directory, JObject manifest)
 		{
+			string hash;
 			lock (_hashes)
+				_hashes.TryGetValue((gitRef, directory), out hash);
+			const string format = "tgz";
+			if (hash == null)
 			{
-				const string format = "tgz";
-				if (!_hashes.TryGetValue((gitRef, directory), out var hash))
-				{
-					byte[] hashOut = null;
-					GitClient.GetArchive(async input => hashOut = SHA1.Create().ComputeHash(input),
-						Remote, gitRef, directory, format);
-					var sb = new StringBuilder();
-					foreach (var b in hashOut) {
-						sb.Append(b.ToString("x2"));
-					}
-					_hashes.Add((gitRef, directory), hash = sb.ToString());
+				byte[] hashOut = null;
+				await GitClient.GetArchive(
+					async input => hashOut = SHA1.Create().ComputeHash(input),
+					Remote, gitRef, directory, format);
+				var sb = new StringBuilder();
+				foreach (var b in hashOut) {
+					sb.Append(b.ToString("x2"));
 				}
-				return new JObject
-				{
-					["tarball"] = $"/{manifest["name"]}/{manifest["version"]}/download.tgz",
-					["shasum"] = hash
-				};
+				hash = sb.ToString();
+				lock (_hashes)
+					_hashes[(gitRef, directory)] = hash;
 			}
+			return new JObject
+			{
+				["tarball"] = $"/{manifest["name"]}/{manifest["version"]}/download.tgz",
+				["shasum"] = hash
+			};
 		}
 	}
 }

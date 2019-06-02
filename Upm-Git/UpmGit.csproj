@@ -6,6 +6,7 @@
     <LangVersion>7.3</LangVersion>
     <RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
     <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+    <NoWarn>1998</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
