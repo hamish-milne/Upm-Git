@@ -1,0 +1,11 @@
+language: csharp
+solution: Upm-Git/UpmGit.csproj
+mono: none
+dotnet: 2.2.300
+script:
+  - dotnet restore
+  - dotnet publish -c release
+os:
+  - windows
+  - linux
+  - osx
