@@ -1,8 +1,10 @@
 language: csharp
-solution: Upm-Git/UpmGit.csproj
 mono: none
 dotnet: 2.2.300
+before_install:
+  - sudo apt-get install -y dpkg # Fix a bug
 script:
+  - cd Upm-Git
   - dotnet restore
   - dotnet publish -c release
 os:
