@@ -7,6 +7,9 @@
     <RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
     <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
     <NoWarn>1998</NoWarn>
+    <RuntimeIdentifier Condition="$([MSBuild]::IsOsPlatform(Windows))">win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="$([MSBuild]::IsOsPlatform(Linux))">linux-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="$([MSBuild]::IsOsPlatform(OSX))">osx-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
