@@ -1,19 +1,39 @@
-language: csharp
-mono: none
-script:
-  - cd Upm-Git
-  - dotnet restore
-  - dotnet publish -c release
-dist: xenial
+
+
+stages:
+  - build
 
 jobs:
   include:
     - stage: build
       os: windows
-  include:
+      language: csharp
+      mono: none
+      dotnet: none
+      script:
+        - echo "Windows!"
+        - cd Upm-Git
+        - dotnet restore
+        - dotnet publish -c release
     - stage: build
+      os: linux
+      dist: xenial
+      language: csharp
+      mono: none
       dotnet: 2.2.300
-      os:
-        - linux
-        - osx
+      script:
+        - echo "Linux!"
+        - cd Upm-Git
+        - dotnet restore
+        - dotnet publish -c release
+    - stage: build
+      os: osx
+      language: csharp
+      mono: none
+      dotnet: 2.2.300
+      script:
+        - echo "OSX!"
+        - cd Upm-Git
+        - dotnet restore
+        - dotnet publish -c release
   
