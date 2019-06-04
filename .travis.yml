@@ -1,11 +1,19 @@
 language: csharp
 mono: none
-dotnet: 2.2.105
 script:
   - cd Upm-Git
   - dotnet restore
   - dotnet publish -c release
-os:
-  - windows
-  - linux
-  - osx
+dist: xenial
+
+jobs:
+  include:
+    - stage: build
+      os: windows
+  include:
+    - stage: build
+      dotnet: 2.2.300
+      os:
+        - linux
+        - osx
+  
