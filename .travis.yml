@@ -11,7 +11,7 @@ jobs:
       mono: none
       dotnet: none
       script:
-        - echo "Windows!"
+        - choco install dotnetcore-sdk
         - cd Upm-Git
         - dotnet restore
         - dotnet publish -c release
@@ -21,8 +21,11 @@ jobs:
       language: csharp
       mono: none
       dotnet: 2.2.300
+      addons:
+        apt:
+          packages:
+          - clang-3.9
       script:
-        - echo "Linux!"
         - cd Upm-Git
         - dotnet restore
         - dotnet publish -c release
