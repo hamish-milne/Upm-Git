@@ -13,10 +13,11 @@ jobs:
       script:
         - choco install dotnetcore-sdk
         - cd Upm-Git
-        - dotnet restore
         - dotnet publish -c release
     - stage: build
-      os: linux
+      os:
+        - osx
+        - linux
       dist: xenial
       language: csharp
       mono: none
@@ -27,16 +28,5 @@ jobs:
           - clang-3.9
       script:
         - cd Upm-Git
-        - dotnet restore
-        - dotnet publish -c release
-    - stage: build
-      os: osx
-      language: csharp
-      mono: none
-      dotnet: 2.2.300
-      script:
-        - echo "OSX!"
-        - cd Upm-Git
-        - dotnet restore
         - dotnet publish -c release
   
