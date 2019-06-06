@@ -10,13 +10,13 @@ strategy:
   matrix:
     linux:
       imageName: "ubuntu-latest"
-      runtime-id: "linux-x64"
+      runtimeId: "linux-x64"
     mac:
       imageName: "macos-latest"
-      runtime-id: "osx-x64"
+      runtimeId: "osx-x64"
     windows:
       imageName: "windows-latest"
-      runtime-id: "win-x64"
+      runtimeId: "win-x64"
   maxParallel: 3
 
 pool:
@@ -24,7 +24,13 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  GIT_REDIRECT_STDERR: '2>&1'
 
 steps:
+- script: sudo apt-get install clang-3.9
+  displayName: Install dependencies
+  condition: eq(variables.runtimeId, "linux-x64")
 - script: git submodule update --init --recursive
-- script: dotnet publish -c $(buildConfiguration) -r $(runtime-id) Upm-Git/UpmGit.csproj
+  displayName: Checkout submodules
+- script: dotnet publish -c $(buildConfiguration) -r $(runtimeId) Upm-Git/UpmGit.csproj
+  displayName: dotnet publish
