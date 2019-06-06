@@ -38,5 +38,5 @@ steps:
   displayName: dotnet publish
 - task: PublishBuildArtifacts@1
   inputs:
-    pathtoPublish: '$(project)/bin/release/$(outputFramework)/$(runtimeId)/native'
-    artifactName: $(project)
+    pathtoPublish: '$(project)/bin/Release/$(outputFramework)/$(runtimeId)/native'
+    artifactName: '$(project)_(runtimeId)'
