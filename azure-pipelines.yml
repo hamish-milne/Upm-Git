@@ -26,4 +26,5 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- script: git submodule update --init --recursive
 - script: dotnet publish -c $(buildConfiguration) -r $(runtime-id) Upm-Git/UpmGit.csproj
