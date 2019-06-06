@@ -29,8 +29,12 @@ variables:
 steps:
 - script: sudo apt-get install clang-3.9
   displayName: Install dependencies
-  condition: eq(variables.runtimeId, "linux-x64")
+  condition: eq(variables.runtimeId, 'linux-x64')
 - script: git submodule update --init --recursive
   displayName: Checkout submodules
 - script: dotnet publish -c $(buildConfiguration) -r $(runtimeId) Upm-Git/UpmGit.csproj
   displayName: dotnet publish
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: 'Upm-Git/bin/release/$(runtimeId)/native'
+    artifactName: Upm-Git
