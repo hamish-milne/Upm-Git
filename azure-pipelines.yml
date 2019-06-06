@@ -1,0 +1,29 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+strategy:
+  matrix:
+    linux:
+      imageName: "ubuntu-latest"
+      runtime-id: "linux-x64"
+    mac:
+      imageName: "macos-latest"
+      runtime-id: "osx-x64"
+    windows:
+      imageName: "windows-latest"
+      runtime-id: "win-x64"
+  maxParallel: 3
+
+pool:
+  vmImage: $(imageName)
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- script: dotnet publish -c $(buildConfiguration) -r $(runtime-id) Upm-Git/UpmGit.csproj
