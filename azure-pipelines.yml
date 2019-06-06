@@ -39,4 +39,4 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: '$(project)/bin/Release/$(outputFramework)/$(runtimeId)/native'
-    artifactName: '$(project)_(runtimeId)'
+    artifactName: '$(project)_$(runtimeId)'

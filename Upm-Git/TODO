@@ -1,11 +1,13 @@
 # Plumbing
-☐ CI
-	☐ Windows
-	☐ Linux
-	☐ MacOS
+✔ CI @done(19-06-02 17:32)
+	✔ Windows @done(19-06-02 17:32)
+	✔ Linux @done(19-06-02 17:32)
+	✔ MacOS @done(19-06-07 00:19)
 	☐ Unitypackage
 ✔ Use uhttpsharp fork @done(19-06-01 13:04)
 ✔ Serilog @done(19-06-01 13:04)
+✘ Use Travis for CI @cancelled(19-06-07 00:18)
+✔ Use Azure Pipelines for CI @done(19-06-07 00:19)
 
 # Configuration
 ☐ Server side
@@ -18,7 +20,7 @@
 ☐ Ref regex
 
 # Features
-☐ Repository in URL
+✔ Repository in URL @done(19-06-02 18:11)
 ☐ Filter refs
 ☐ Package cache
 ☐ Authentication
