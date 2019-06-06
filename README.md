@@ -2,6 +2,8 @@
 
 A Unity Package Manager bridge for Git repositories
 
+[![Build Status](https://dev.azure.com/hamish0529/hamish/_apis/build/status/hamish-milne.Upm-Git?branchName=master)](https://dev.azure.com/hamish0529/hamish/_build/latest?definitionId=1&branchName=master)
+
 Got some [custom packages](https://docs.unity3d.com/Manual/CustomPackages.html) on a Git repository somewhere that you want to use in your projects? Upm-Git is a straightforward way to have them show up in the Unity Package Manager window, with full support for versioning and dependencies.
 
 ## Quick Start - Using the UPM Settings window
