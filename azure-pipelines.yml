@@ -23,18 +23,20 @@ pool:
   vmImage: $(imageName)
 
 variables:
+  project: 'Upm-Git'
+  targetFramework: 'netcoreapp2.2'
   buildConfiguration: 'Release'
   GIT_REDIRECT_STDERR: '2>&1'
 
 steps:
-- script: sudo apt-get install clang-3.9
+- script: sudo apt-get -y install clang-3.9 libcurl4-openssl-dev zlib1g-dev libkrb5-dev
   displayName: Install dependencies
   condition: eq(variables.runtimeId, 'linux-x64')
 - script: git submodule update --init --recursive
   displayName: Checkout submodules
-- script: dotnet publish -c $(buildConfiguration) -r $(runtimeId) Upm-Git/UpmGit.csproj
+- script: dotnet publish -c $(buildConfiguration) -r $(runtimeId) $(project)
   displayName: dotnet publish
 - task: PublishBuildArtifacts@1
   inputs:
-    pathtoPublish: 'Upm-Git/bin/release/$(runtimeId)/native'
-    artifactName: Upm-Git
+    pathtoPublish: '$(project)/bin/release/$(targetFramework)/$(runtimeId)/native'
+    artifactName: $(project)
