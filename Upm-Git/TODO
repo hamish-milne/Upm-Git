@@ -10,11 +10,11 @@
 ✔ Use Azure Pipelines for CI @done(19-06-07 00:19)
 
 # Configuration
-☐ Server side
+✔ Server side @done(19-06-08 00:17)
 ☐ Repository side
-☐ Serilog
-☐ Listen address
-☐ Port
+✔ Serilog @done(19-06-08 00:17)
+✔ Listen address @done(19-06-08 00:17)
+✔ Port @done(19-06-08 00:17)
 ☐ SSL Certificate
 ☐ Single repository
 ☐ Ref regex

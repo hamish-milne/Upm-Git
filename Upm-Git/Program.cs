@@ -10,20 +10,14 @@ using uhttpsharp.RequestProviders;
 
 using Serilog;
 using Serilog.Events;
+using Log = Serilog.Log;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Configuration;
 
 namespace UpmGit
 {
 	class Program
     {
-        static Program()
-        {
-            Serilog.Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Verbose()
-                .WriteTo.Console()
-                .CreateLogger();
-            LogProvider.SetCurrentLogProvider(new SerilogProvider());
-        }
-
         static void WaitForExit()
         {
             var waitEvent = new ManualResetEvent(false);
@@ -35,9 +29,29 @@ namespace UpmGit
 
         static void Main(string[] args)
         {
+            var config = new ConfigurationBuilder()
+                .AddJsonFile(x => 
+                {
+                    x.Path = "appsettings.json";
+                    x.FileProvider = new EmbeddedFileProvider(typeof(Program).Assembly);
+                })
+                .AddJsonFile("appsettings.json", true)
+                .Build();
+                
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(config)
+                .CreateLogger();
+            LogProvider.SetCurrentLogProvider(new SerilogProvider());
+
             using (var httpServer = new HttpServer(new HttpRequestProvider()))
             {
-                httpServer.Use(new TcpListenerAdapter(new TcpListener(IPAddress.Loopback, 1234)));
+                var endpoint = new IPEndPoint(
+                    IPAddress.Parse(config.GetValue<string>("listenAddress")),
+                    config.GetValue<int>("port")
+                );
+                Log.Information("Listening on {endpoint}", endpoint);
+                
+                httpServer.Use(new TcpListenerAdapter(new TcpListener(endpoint)));
 
                 // TODO: SSL support
 
