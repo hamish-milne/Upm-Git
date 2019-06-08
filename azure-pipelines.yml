@@ -29,14 +29,17 @@ variables:
   GIT_REDIRECT_STDERR: '2>&1'
 
 steps:
+- script: git submodule update --init --recursive
+  displayName: Checkout submodules
 - script: sudo apt-get update && sudo apt-get -y install clang-3.9 libcurl4-openssl-dev zlib1g-dev libkrb5-dev
   displayName: Install dependencies
   condition: eq(variables.runtimeId, 'linux-x64')
-- script: git submodule update --init --recursive
-  displayName: Checkout submodules
 - script: dotnet publish -c $(buildConfiguration) -r $(runtimeId) $(project)
-  displayName: dotnet publish
+  displayName: Compile
+- script: ./$(project)/bin/$(buildConfiguration)/$(outputFramework)/$(runtimeId)/native/$(project) --test
+  displayName: Test
 - task: PublishBuildArtifacts@1
+  displayName: Publish
   inputs:
-    pathtoPublish: '$(project)/bin/Release/$(outputFramework)/$(runtimeId)/native'
+    pathtoPublish: '$(project)/bin/$(buildConfiguration)/$(outputFramework)/$(runtimeId)/native'
     artifactName: '$(project)_$(runtimeId)'
