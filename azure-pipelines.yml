@@ -36,7 +36,7 @@ steps:
   condition: eq(variables.runtimeId, 'linux-x64')
 - script: dotnet publish -c $(buildConfiguration) -r $(runtimeId) $(project)
   displayName: Compile
-- script: "./$(project)/bin/$(buildConfiguration)/$(outputFramework)/$(runtimeId)/native/UpmGit" --test
+- script: >- "./$(project)/bin/$(buildConfiguration)/$(outputFramework)/$(runtimeId)/native/UpmGit" --test
   displayName: Test
 - task: PublishBuildArtifacts@1
   displayName: Publish
