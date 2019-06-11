@@ -9,25 +9,36 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
 
 namespace UpmGit
 {
 	public class Controller : ControllerBase
 	{
-		public Controller()
+		private string SingleRepository { get; }
+		private GitClient GitClient { get; }
+
+		public Controller(IConfiguration config)
 		{
-			Get("/{remote}", async (_, __) => Ok);
-			Get("/{remote}/-/all", ListAll);
-			Get("/{remote}/{package}", GetPackage);
-			Get("/{remote}/{package}/{version}", GetPackageVersion);
-			Get("/{remote}/-/v1/search", Search);
-			Get("/{remote}/{package}/{version}/download.{format}", Download);
+			var prefix = config.GetValue<string>("UrlPrefix");
+			var remote = config.GetValue<string>("SingleRepository");
+			if (remote == null) {
+				prefix += "/{remote}";
+			}
+			SingleRepository = remote;
+			GitClient = new GitClient { RefFilter = new Regex(config.GetValue<String>("RefRegex")) };
+			Get(prefix + "/", async (_, __) => Ok);
+			Get(prefix + "/-/all", ListAll);
+			Get(prefix + "/{package}", GetPackage);
+			Get(prefix + "/{package}/{version}", GetPackageVersion);
+			Get(prefix + "/-/v1/search", Search);
+			Get(prefix + "/{package}/{version}/download.{format}", Download);
 		}
 
 		string GetRemote(Dictionary<string, string> props)
 		{
-			// TODO: Add single remote config
-			return props["remote"];
+			return SingleRepository ?? props["remote"];
 		}
 
 		async Task<IHttpResponse> ListAll(Dictionary<string, string> query, IHttpContext __)
@@ -167,27 +178,23 @@ namespace UpmGit
 
 		class DownloadResponse : IHttpResponse
 		{
-			public DownloadResponse(string format)
+			public DownloadResponse(string format, Func<Stream, Task> streamDelegate)
 			{
-				Format = format;
 				Headers = new HttpHeaders(
 					new Dictionary<string, string>{
-						{"Content-Type", "application/json"}
+						{"Content-Type", $"application/{format}"}
 					}
 				);
+				StreamDelegate = streamDelegate;
 			}
-			public string GitRef { get; set; }
-			public string Path { get; set; }
-			public string Format { get; }
-			public string Remote { get; set; }
+			private Func<Stream, Task> StreamDelegate;
 			public HttpResponseCode ResponseCode => HttpResponseCode.Ok;
 			public bool CloseConnection => true;
 			public IHttpHeaders Headers { get; }
 
 			public async Task WriteBody(StreamWriter writer)
 			{
-				await GitClient.GetArchive(stream => stream.CopyToAsync(writer.BaseStream),
-					Remote, GitRef, Path, Format);
+				await StreamDelegate(writer.BaseStream);
 			}
 		}
 
@@ -201,12 +208,12 @@ namespace UpmGit
 			if (Manifest == null) {
 				return NotFound;
 			}
-			return new DownloadResponse(query["format"])
-			{
-				GitRef = GitRef,
-				Path = Path,
-				Remote = GetRemote(query)
-			};
+			return new DownloadResponse(query["format"],
+				dst => GitClient.GetArchive(
+					src => src.CopyToAsync(dst),
+					GetRemote(query), GitRef, Path, query["format"]
+				)
+			);
 		}
 
 		private static (string GitRef, string Path, JObject Manifest)[] Packages;
@@ -215,7 +222,7 @@ namespace UpmGit
 		private void UpdatePackages(Dictionary<string, string> query)
 		{
 			if (Packages == null) {
-				Packages = GitClient.ListPackages(GetRemote(query), "*/package.json", r => r.Contains("package")).ToArray();
+				Packages = GitClient.ListPackages(GetRemote(query), "*/package.json").ToArray();
 			}
 		}
 

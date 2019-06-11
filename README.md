@@ -36,7 +36,7 @@ Use the following structure (omit keys to keep their default value):
 
 ```json
 {
-	"refRegex": "^refs/(heads|tags)/.+$"
+	"refRegex": "^refs/(heads|tags)/(develop|master|release/.*)$"
 }
 ```
 
@@ -44,14 +44,14 @@ Use the following structure (omit keys to keep their default value):
 
 Create a file `appsettings.json` next to the executable, with the following structure (omit keys to keep their default values):
 
-```json
+```json5
 {
-	"listenAddress": "0.0.0.0",
+	"listenAddress": "127.0.0.1",
 	"port": "8760",
 	"sslCertificate": null, // Path to the certificate file, to enable TLS
 	"singleRepository": null, // If specified, all requests will use this git remote; otherwise the URL encoding scheme is used
 	"urlPrefix": "/",
-	"refRegex": "^refs/(heads|tags)/.+$", // Only refs matching this expression will be scanned for packages
+	"refRegex": "^refs/(heads|tags)/(develop|master|release/.*)$", // Only refs matching this expression will be scanned for packages
 	"cacheSizeMB": "100",
 	"useRepositoryConfiguration": true,
 	"authentication": null // See the Authentication section below

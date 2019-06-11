@@ -1,8 +1,6 @@
-﻿using System.Reflection;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 
@@ -16,9 +14,7 @@ using Serilog.Events;
 using Log = Serilog.Log;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Primitives;
-using Microsoft.Extensions.FileProviders.Embedded;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace UpmGit
 {
@@ -30,7 +26,7 @@ namespace UpmGit
                 .AddJsonFile(x => 
                 {
                     x.Path = "appsettings.json";
-                    x.FileProvider = new AOTFriendlyEmbeddedFileProvider(typeof(Program).Assembly);
+                    x.FileProvider = new EmbeddedFileProvider(typeof(Program).Assembly);
                 })
                 .AddJsonFile("appsettings.json", true)
                 .Build();
@@ -53,7 +49,8 @@ namespace UpmGit
 
                 // TODO: SSL support
 
-                httpServer.Use(new Controller());
+                httpServer.Use(new Controller(config));
+                httpServer.Use(new ErrorHandler());
                 httpServer.Start();
                 if (!args.Contains("--test"))
                     WaitForExit();
@@ -78,64 +75,6 @@ namespace UpmGit
         }
     }
 
-	public class AOTFriendlyEmbeddedFileProvider : IFileProvider
-	{
-        public AOTFriendlyEmbeddedFileProvider(Assembly assembly)
-        {
-            _assembly = assembly;
-            _baseNamespace = assembly.GetName().Name;
-            _surrogate = new EmbeddedFileProvider(assembly, _baseNamespace);
-            _baseNamespace += ".";
-        }
-        private readonly Assembly _assembly;
-        private readonly string _baseNamespace;
-        private readonly EmbeddedFileProvider _surrogate;
-        private readonly DateTime _lastModified = DateTime.UtcNow;
-		public IDirectoryContents GetDirectoryContents(string subpath)
-            => _surrogate.GetDirectoryContents(subpath);
-
-		public IFileInfo GetFileInfo(string subpath)
-		{
-            if (string.IsNullOrEmpty(subpath))
-            {
-                return new NotFoundFileInfo(subpath);
-            }
-
-            var builder = new StringBuilder(_baseNamespace.Length + subpath.Length);
-            builder.Append(_baseNamespace);
-
-            // Relative paths starting with a leading slash okay
-            if (subpath.StartsWith("/", StringComparison.Ordinal))
-            {
-                builder.Append(subpath, 1, subpath.Length - 1);
-            }
-            else
-            {
-                builder.Append(subpath);
-            }
-
-            for (var i = _baseNamespace.Length; i < builder.Length; i++)
-            {
-                if (builder[i] == '/' || builder[i] == '\\')
-                {
-                    builder[i] = '.';
-                }
-            }
-
-            var resourcePath = builder.ToString();
-
-            var name = Path.GetFileName(subpath);
-            if (!_assembly.GetManifestResourceNames().Contains(resourcePath))
-            {
-                return new NotFoundFileInfo(name);
-            }
-            return new EmbeddedResourceFileInfo(_assembly, resourcePath, name, _lastModified);
-		}
-
-		public IChangeToken Watch(string filter)
-            => _surrogate.Watch(filter);
-	}
-
 	public class SerilogProvider : ILogProvider
     {
 		public ILog GetLogger(string name) => new SerilogLogger();
@@ -153,6 +92,16 @@ namespace UpmGit
                         messageFunc?.Invoke() ?? "", formatParameters);
                 return true;
 			}
+		}
+	}
+
+	public class ErrorHandler : IHttpRequestHandler
+	{
+		public Task Handle(IHttpContext context, Func<Task> next)
+		{
+            Log.Information("Not found: {0}", context.Request.Uri);
+			context.Response = new HttpResponse(HttpResponseCode.NotFound, "", true);
+            return Task.CompletedTask;
 		}
 	}
 }

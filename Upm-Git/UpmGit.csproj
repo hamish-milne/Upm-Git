@@ -6,6 +6,7 @@
     <LangVersion>7.3</LangVersion>
     <RootAllApplicationAssemblies>false</RootAllApplicationAssemblies>
     <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+    <RuntimeFrameworkVersion>2.2.5</RuntimeFrameworkVersion>
     <NoWarn>1998</NoWarn>
     <RuntimeIdentifier Condition="$([MSBuild]::IsOsPlatform(Windows))">win-x64</RuntimeIdentifier>
     <RuntimeIdentifier Condition="$([MSBuild]::IsOsPlatform(Linux))">linux-x64</RuntimeIdentifier>
@@ -13,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Dotnet.ILCompiler" Version="1.0.0-alpha-27722-02" />
+    <PackageReference Include="Microsoft.Dotnet.ILCompiler" Version="1.0.0-alpha-*" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.2.0" />
     <PackageReference Include="Serilog" Version="2.8.0" />
